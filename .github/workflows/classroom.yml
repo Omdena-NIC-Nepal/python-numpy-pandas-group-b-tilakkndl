@@ -1,0 +1,39 @@
+name: Autograde Assignment
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  autograde:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          pip install pandas numpy 
+          pip install nbconvert nbformat pytest
+
+      - name: Convert Notebook to Python
+        run: jupyter nbconvert --to script assignment.ipynb
+
+      - name: Run Tests
+        run: pytest test_assignment.py
+
+      - name: Report Status
+        if: ${{ failure() }}
+        run: echo "Some tests failed! Please check and fix the issues."
